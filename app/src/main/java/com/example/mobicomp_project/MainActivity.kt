@@ -4,6 +4,10 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
 import kotlinx.android.synthetic.*
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -20,6 +24,24 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(applicationContext, IntakeActivity::class.java))
 
         }
+
+        //dummy data for the bar graph
+
+        val entries = mutableListOf<BarEntry>()
+
+        entries.add(BarEntry(0f, 2400f))
+        entries.add(BarEntry(1f, 2200f))
+        entries.add(BarEntry(2f, 1800f))
+        entries.add(BarEntry(3f, 500f))
+        entries.add(BarEntry(4f, 2800f))
+        entries.add(BarEntry(5f, 2900f))
+        entries.add(BarEntry(6f, 2200f))
+
+        val set = BarDataSet(entries, "Dummy data set")
+        val data = BarData(set)
+        data.barWidth=0.5f
+        calorie_chart.data=data
+        calorie_chart.setFitBars(true)
 
     }
 }
