@@ -25,7 +25,7 @@ class IntakeActivity : AppCompatActivity() {
                 .setTitle("Add Item")
 
             val mAlertDialog = addBuilder.show()
-
+            mAlertDialog.edit_time.setIs24HourView(true)
 
             addDialog.dialog_button_ok.setOnClickListener{
                 mAlertDialog.dismiss()
@@ -62,7 +62,7 @@ class IntakeActivity : AppCompatActivity() {
                 .setTitle("Edit Item")
 
             val mAlertDialog = editBuilder.show()
-
+            mAlertDialog.edit_time.setIs24HourView(true)
 
             editDialog.dialog_button_ok.setOnClickListener{
                 mAlertDialog.dismiss()

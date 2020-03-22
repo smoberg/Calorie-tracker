@@ -14,8 +14,10 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="64dp"
         android:clickable="true"
+        app:backgroundTint="#009688"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:tint="@android:color/white"
         app:srcCompat="@drawable/ic_delete_24px" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -26,6 +28,8 @@
         android:layout_marginEnd="116dp"
         android:layout_marginBottom="112dp"
         android:clickable="true"
+        app:backgroundTint="#009688"
+        android:tint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_create_24px" />
@@ -38,16 +42,29 @@
         android:layout_marginEnd="72dp"
         android:layout_marginBottom="120dp"
         android:clickable="true"
+        android:elevation="6dp"
+        app:backgroundTint="#009688"
+        android:tint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add_24px"
-        android:elevation="6dp"/>
+        app:srcCompat="@drawable/ic_add_24px" />
 
     <TextView
         android:id="@+id/food_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Fooditem"
+        android:layout_marginTop="80dp"
+        android:text="Banana"
+        android:textSize="30sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/food_item2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:text="Sandwich"
         android:textSize="30sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -56,9 +73,23 @@
         android:id="@+id/calories"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="calories"
+        android:layout_marginTop="80dp"
+        android:text="88 Kcal"
         android:textSize="30sp"
         app:layout_constraintEnd_toStartOf="@+id/time_stamp"
+        app:layout_constraintHorizontal_bias="0.397"
+        app:layout_constraintStart_toEndOf="@+id/food_item"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/calories2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:text="200 Kcal"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toStartOf="@+id/time_stamp"
+        app:layout_constraintHorizontal_bias="0.453"
         app:layout_constraintStart_toEndOf="@+id/food_item"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -66,9 +97,37 @@
         android:id="@+id/time_stamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="time"
+        android:layout_marginTop="76dp"
+        android:text="15:31"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/time_stamp2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="116dp"
+        android:text="16:31"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/header_intake"
+        android:layout_width="411dp"
+        android:layout_height="80dp"
+        android:background="#009688"
+        android:fontFamily="@font/ubuntu_bold"
+        android:text="Food        Calories      Time"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="#DDDADA"
+        android:textSize="34sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,15 +10,18 @@
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="608dp"
         android:clickable="true"
         android:focusable="true"
-        app:backgroundTint="#9C27B0"
+        android:tint="@android:color/white"
+        app:backgroundTint="#009688"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/calories_text"
         app:maxImageSize="36dp"
-        app:srcCompat="@drawable/ic_food" />
+        app:srcCompat="@drawable/ic_fastfood_24px" />
 
     <TextView
         android:id="@+id/calories_text"
@@ -42,6 +45,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="150dp"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
