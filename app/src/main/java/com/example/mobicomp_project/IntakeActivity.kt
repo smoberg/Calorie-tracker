@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import kotlinx.android.synthetic.main.activity_intake.*
 import kotlinx.android.synthetic.main.delete_window.view.*
+import kotlinx.android.synthetic.main.dialog_window.*
 import kotlinx.android.synthetic.main.dialog_window.view.*
 import org.jetbrains.anko.toast
 
@@ -16,6 +17,7 @@ class IntakeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_intake)
 
+
         btn_add.setOnClickListener{
             val addDialog = LayoutInflater.from(this).inflate(R.layout.dialog_window, null)
             val addBuilder = AlertDialog.Builder(this)
@@ -23,6 +25,7 @@ class IntakeActivity : AppCompatActivity() {
                 .setTitle("Add Item")
 
             val mAlertDialog = addBuilder.show()
+
 
             addDialog.dialog_button_ok.setOnClickListener{
                 mAlertDialog.dismiss()
@@ -60,6 +63,7 @@ class IntakeActivity : AppCompatActivity() {
 
             val mAlertDialog = editBuilder.show()
 
+
             editDialog.dialog_button_ok.setOnClickListener{
                 mAlertDialog.dismiss()
             }
@@ -69,7 +73,8 @@ class IntakeActivity : AppCompatActivity() {
             }
         }
 
-        val clickText = findViewById<TextView>(R.id.food_item)
+        //val clickText = findViewById<TextView>(R.id.food_item)
+        val clickText = food_item
         var fabOpened = false
 
         clickText.setOnClickListener{
