@@ -6,11 +6,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import kotlinx.android.synthetic.main.activity_intake.*
 import kotlinx.android.synthetic.main.delete_window.view.*
 import kotlinx.android.synthetic.main.dialog_window.*
 import kotlinx.android.synthetic.main.dialog_window.view.*
+import org.jetbrains.anko.AnkoAsyncContext
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
@@ -23,27 +25,9 @@ class IntakeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_intake)
 
-        doAsync {
-            val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
-            Log.e("dbdebug", "db buildattu intake avatessa")
-            val caloricIntakes = db.calorieDao().getCaloricIntakes()
 
-            db.close()
-            uiThread {
-
-                if(caloricIntakes.isNotEmpty()){
-                    Log.e("dbdebug", "caloricintakes not empty")
-                    Log.e("dbdebug", "size: %d".format(caloricIntakes.size))
-                }
-                else{
-                    Log.e("dbdebug", "tyhjä")
-                }
-            }
-
-
-        }
-
-
+        recycler_view.layoutManager = LinearLayoutManager(this)
+        recycler_view.setHasFixedSize(true)
 
 
         btn_add.setOnClickListener{
@@ -124,7 +108,7 @@ class IntakeActivity : AppCompatActivity() {
             }
         }
 
-        //val clickText = findViewById<TextView>(R.id.food_item)
+/*        //val clickText = findViewById<TextView>(R.id.food_item)
         val clickText = food_item
         var fabOpened = false
 
@@ -142,9 +126,43 @@ class IntakeActivity : AppCompatActivity() {
                 btn_edit.animate().translationY(0f)
                 btn_delete.animate().translationY(0f)
             }
+        }*/
+
+
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        refreshList()
+    }
+
+    private fun refreshList() {
+
+        doAsync {
+            val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
+            Log.e("dbdebug", "db buildattu intake avatessa")
+            val caloricIntakes = db.calorieDao().getCaloricIntakes()
+
+            db.close()
+            uiThread {
+
+                if(caloricIntakes.isNotEmpty()){
+                    Log.e("dbdebug", "caloricintakes not empty")
+                    Log.e("dbdebug", "size: %d".format(caloricIntakes.size))
+
+                    recycler_view.adapter = RecyclerviewAdapter(caloricIntakes)
+
+
+                }
+                else{
+                    Log.e("dbdebug", "tyhjä")
+                }
+            }
+
+
         }
-
-
 
     }
 }
