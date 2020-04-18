@@ -17,6 +17,11 @@ import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
 import java.time.format.DateTimeFormatter
+import java.util.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.Month
 
 
 class IntakeActivity : AppCompatActivity() {
@@ -30,7 +35,7 @@ class IntakeActivity : AppCompatActivity() {
         recycler_view.setHasFixedSize(true)
 
 
-        btn_add.setOnClickListener{
+        btn_add.setOnClickListener {
             val addDialog = LayoutInflater.from(this).inflate(R.layout.dialog_window, null)
             val addBuilder = AlertDialog.Builder(this)
                 .setView(addDialog)
@@ -39,22 +44,34 @@ class IntakeActivity : AppCompatActivity() {
             val mAlertDialog = addBuilder.show()
             mAlertDialog.edit_time.setIs24HourView(true)
 
-            addDialog.dialog_button_ok.setOnClickListener{
+            addDialog.dialog_button_ok.setOnClickListener {
+                // lisää automaattisesti kyseisen päivän valittuun aikaan
+                val date = LocalDate.now()
+                val time = LocalTime.of(
+                    mAlertDialog.edit_time.currentHour,
+                    mAlertDialog.edit_time.currentMinute
+                )
+                val datetime = LocalDateTime.of(date, time)
 
-                var pickedTime = "%s:%s".format(mAlertDialog.edit_time.currentHour, mAlertDialog.edit_time.currentMinute)
-                Log.e("dbdebug", "picked time: %s ".format(pickedTime))
+                println(datetime.format(DateTimeFormatter.ofPattern("d/M/y H:mm")))
 
+                // tekee  caloricIntake objektin.
                 val caloricIntake = CaloricIntake(
                     uid = null,
-                    timestamp = pickedTime,
+                    timestamp = datetime.format(DateTimeFormatter.ofPattern("d/M/y H:mm")),
                     calories = Integer.parseInt(mAlertDialog.edit_calories.text.toString()),
                     foodName = mAlertDialog.edit_food.text.toString()
                 )
 
                 Log.e("dbdebug", "db entry tehty")
 
+                // Lisää caloricIntaken databaseen.
                 doAsync {
-                    val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
+                    val db = Room.databaseBuilder(
+                        applicationContext,
+                        AppDatabase::class.java,
+                        "calorieIntakes"
+                    ).build()
                     Log.e("dbdebug", "db buildattu insertissä")
 
                     db.calorieDao().insert(caloricIntake)
@@ -66,12 +83,12 @@ class IntakeActivity : AppCompatActivity() {
 
             }
 
-            addDialog.dialog_button_cancel.setOnClickListener{
+            addDialog.dialog_button_cancel.setOnClickListener {
                 mAlertDialog.dismiss()
             }
         }
 
-        btn_delete.setOnClickListener{
+        btn_delete.setOnClickListener {
 
             val deleteDialog = LayoutInflater.from(this).inflate(R.layout.delete_window, null)
             val deleteBuilder = AlertDialog.Builder(this)
@@ -80,16 +97,29 @@ class IntakeActivity : AppCompatActivity() {
 
             val mAlertDialog = deleteBuilder.show()
 
-            deleteDialog.btn_delete_confirm.setOnClickListener{
+            deleteDialog.btn_delete_confirm.setOnClickListener {
+                // pitää saada kiinni sen valitun objektin unique id, että se voidaan poistaa databasesta.
+                doAsync {
+
+                    val db = Room.databaseBuilder(
+                        applicationContext,
+                        AppDatabase::class.java,
+                        "calorieIntakes"
+                    ).build()
+                    val id = 1
+                    db.calorieDao().delete(id)
+                    db.close()
+
+                }
                 mAlertDialog.dismiss()
             }
 
-            deleteDialog.btn_delete_cancel.setOnClickListener{
+            deleteDialog.btn_delete_cancel.setOnClickListener {
                 mAlertDialog.dismiss()
             }
         }
 
-        btn_edit.setOnClickListener{
+        btn_edit.setOnClickListener {
 
             val editDialog = LayoutInflater.from(this).inflate(R.layout.dialog_window, null)
             val editBuilder = AlertDialog.Builder(this)
@@ -99,16 +129,38 @@ class IntakeActivity : AppCompatActivity() {
             val mAlertDialog = editBuilder.show()
             mAlertDialog.edit_time.setIs24HourView(true)
 
-            editDialog.dialog_button_ok.setOnClickListener{
+            editDialog.dialog_button_ok.setOnClickListener {
+
+                // Queryy valitun objektin databasesta, edittaa siihen edittaus ikkunassa asetetut arvot.
+                doAsync {
+
+                    val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
+                    
+                    val id = 1
+                    val date = LocalDate.now()
+                    val time = LocalTime.of(mAlertDialog.edit_time.currentHour, mAlertDialog.edit_time.currentMinute
+                    )
+                    val datetime = LocalDateTime.of(date, time)
+
+                    var caloricIntake = db.calorieDao().findById(id)
+                    caloricIntake.calories = Integer.parseInt(mAlertDialog.edit_calories.text.toString())
+                    caloricIntake.timestamp = datetime.format(DateTimeFormatter.ofPattern("d/M/y H:mm"))
+                    caloricIntake.foodName = mAlertDialog.edit_food.text.toString()
+                    db.calorieDao().updateData(caloricIntake)
+
+                    db.close()
+
+                }
+
                 mAlertDialog.dismiss()
             }
 
-            editDialog.dialog_button_cancel.setOnClickListener{
+            editDialog.dialog_button_cancel.setOnClickListener {
                 mAlertDialog.dismiss()
             }
         }
 
-/*        //val clickText = findViewById<TextView>(R.id.food_item)
+/*      val clickText = findViewById<TextView>(R.id.food_item)
         val clickText = food_item
         var fabOpened = false
 
@@ -129,7 +181,6 @@ class IntakeActivity : AppCompatActivity() {
         }*/
 
 
-
     }
 
     override fun onResume() {
@@ -141,22 +192,23 @@ class IntakeActivity : AppCompatActivity() {
     private fun refreshList() {
 
         doAsync {
-            val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
+            val db =
+                Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes")
+                    .build()
             Log.e("dbdebug", "db buildattu intake avatessa")
             val caloricIntakes = db.calorieDao().getCaloricIntakes()
 
             db.close()
             uiThread {
 
-                if(caloricIntakes.isNotEmpty()){
+                if (caloricIntakes.isNotEmpty()) {
                     Log.e("dbdebug", "caloricintakes not empty")
                     Log.e("dbdebug", "size: %d".format(caloricIntakes.size))
 
                     recycler_view.adapter = RecyclerviewAdapter(caloricIntakes)
 
 
-                }
-                else{
+                } else {
                     Log.e("dbdebug", "tyhjä")
                 }
             }
