@@ -67,11 +67,7 @@ class IntakeActivity : AppCompatActivity() {
 
                 // Lisää caloricIntaken databaseen.
                 doAsync {
-                    val db = Room.databaseBuilder(
-                        applicationContext,
-                        AppDatabase::class.java,
-                        "calorieIntakes"
-                    ).build()
+                    val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
                     Log.e("dbdebug", "db buildattu insertissä")
 
                     db.calorieDao().insert(caloricIntake)
@@ -80,7 +76,7 @@ class IntakeActivity : AppCompatActivity() {
                 }
 
                 mAlertDialog.dismiss()
-
+                refreshList()
             }
 
             addDialog.dialog_button_cancel.setOnClickListener {
@@ -112,6 +108,7 @@ class IntakeActivity : AppCompatActivity() {
 
                 }
                 mAlertDialog.dismiss()
+                refreshList()
             }
 
             deleteDialog.btn_delete_cancel.setOnClickListener {
@@ -135,7 +132,7 @@ class IntakeActivity : AppCompatActivity() {
                 doAsync {
 
                     val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
-                    
+
                     val id = 1
                     val date = LocalDate.now()
                     val time = LocalTime.of(mAlertDialog.edit_time.currentHour, mAlertDialog.edit_time.currentMinute
@@ -153,6 +150,7 @@ class IntakeActivity : AppCompatActivity() {
                 }
 
                 mAlertDialog.dismiss()
+                refreshList()
             }
 
             editDialog.dialog_button_cancel.setOnClickListener {

@@ -7,7 +7,7 @@ import androidx.room.*
 data class CaloricIntake(
     @PrimaryKey(autoGenerate = true) var uid: Int?,
     @ColumnInfo(name = "timestamp") var timestamp: String?,
-    @ColumnInfo(name = "calories") var calories: Int?,
+    @ColumnInfo(name = "calories") var calories: Int,
     @ColumnInfo(name = "foodName") var foodName: String
 )
 
@@ -37,7 +37,7 @@ interface CalorieDao{
 
 data class DailyCalorieIntake(
     @PrimaryKey(autoGenerate = true) var uid: Int?,
-    @ColumnInfo(name = "date") var date: Long?,
+    @ColumnInfo(name = "date") var date: String?,
     @ColumnInfo(name = "dailyCalories") var dailyCalories: Int?
 )
 
@@ -48,6 +48,9 @@ interface DailyCalorieDao{
 
     @Query("SELECT * FROM dailyCalories")
     fun getDailyCalories(): List<DailyCalorieIntake>
+
+    @Query("SELECT * FROM (SELECT * FROM dailyCalories ORDER BY uid DESC LIMIT 7) ORDER BY uid ASC")
+    fun getWeekData(): List<DailyCalorieIntake>
 
     @Query("DELETE FROM dailyCalories WHERE uid = :id")
     fun delete(id:Int)

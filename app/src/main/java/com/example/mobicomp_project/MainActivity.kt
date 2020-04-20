@@ -4,14 +4,22 @@ import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import androidx.core.graphics.blue
+import androidx.room.Room
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import kotlinx.android.synthetic.*
+import kotlinx.android.synthetic.main.activity_intake.*
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,12 +27,56 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        calories_text.setText("1234")
-
-
         fab.setOnClickListener{
             startActivity(Intent(applicationContext, IntakeActivity::class.java))
 
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshGraph()
+        refreshCalorieText()
+    }
+
+    private fun refreshCalorieText(){
+        var dailyCaloriesTotal = 0
+        val formatter = DateTimeFormatter.ofPattern("d/M/y H:mm")
+
+        doAsync {
+            val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
+            val caloricIntakes = db.calorieDao().getCaloricIntakes()
+
+            for (clrIntake in caloricIntakes){
+                val datetime = LocalDateTime.parse(clrIntake.timestamp, formatter)
+                if (datetime.toLocalDate() == LocalDate.now()){
+                    dailyCaloriesTotal = dailyCaloriesTotal + clrIntake.calories
+                }
+            }
+            println(dailyCaloriesTotal)
+            uiThread { calories_text.setText(dailyCaloriesTotal.toString()) }
+        }
+
+
+
+
+
+    }
+    private fun refreshGraph() {
+
+        doAsync {
+            val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
+
+            Log.e("dbdebug", "db buildattu refreshgraph")
+
+            val dailycalories = db.dailyCalorieDao().getWeekData()
+
+            for (dailycalory in dailycalories) {
+                println(dailycalory.uid)
+                //println(dailycalory.dailyCalories)
+            }
+
+            db.close()
         }
 
         //dummy data for the bar graph
@@ -51,4 +103,5 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+
 }
