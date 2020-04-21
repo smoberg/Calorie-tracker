@@ -17,6 +17,7 @@ import kotlinx.android.synthetic.main.activity_intake.*
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import java.nio.channels.NonReadableChannelException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -27,10 +28,31 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
         fab.setOnClickListener{
             startActivity(Intent(applicationContext, IntakeActivity::class.java))
 
         }
+
+        doAsync {
+            val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
+            val formatter = DateTimeFormatter.ofPattern("d/M/y")
+            val dailyCaloriesCurrent = db.dailyCalorieDao().findByDate(LocalDate.now().format(formatter))
+
+            if (dailyCaloriesCurrent == null){
+                //Makes empty object for the current day if there is not one already in database
+                val dailyCalorieTotal = DailyCalorieIntake(
+                    uid = null,
+                    date = LocalDate.now().format(formatter),
+                    dailyCalories = 0
+                )
+                db.dailyCalorieDao().insert(dailyCalorieTotal)
+                db.close()
+            }
+
+        }
+
+
     }
 
     override fun onResume() {
@@ -40,6 +62,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshCalorieText(){
+        // Refreshes CalorieText shown at the top of the screen with calorie intake of current day.
+        // Updates daily calorie total to database also.
+
         var dailyCaloriesTotal = 0
         val formatter = DateTimeFormatter.ofPattern("d/M/y H:mm")
 
@@ -50,34 +75,39 @@ class MainActivity : AppCompatActivity() {
             for (clrIntake in caloricIntakes){
                 val datetime = LocalDateTime.parse(clrIntake.timestamp, formatter)
                 if (datetime.toLocalDate() == LocalDate.now()){
-                    dailyCaloriesTotal = dailyCaloriesTotal + clrIntake.calories
+                    dailyCaloriesTotal += clrIntake.calories
                 }
             }
-            println(dailyCaloriesTotal)
+            val dailyClrTotal = db.dailyCalorieDao().findByDate(LocalDate.now().format(DateTimeFormatter.ofPattern("d/M/y")))
+                if (dailyClrTotal != null){
+                    dailyClrTotal.dailyCalories = dailyCaloriesTotal
+                    db.dailyCalorieDao().updateData(dailyClrTotal)
+                    db.close()
+                }
+                else{
+                    db.close()
+                }
+
             uiThread { calories_text.setText(dailyCaloriesTotal.toString()) }
         }
-
-
-
-
-
     }
-    private fun refreshGraph() {
 
+
+    private fun refreshGraph() {
+        // Refreshes bar graph with the recent data. Queries database for data from last seven days and updates them to the bar graph
         doAsync {
             val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
 
             Log.e("dbdebug", "db buildattu refreshgraph")
 
-            val dailycalories = db.dailyCalorieDao().getWeekData()
+            val dailyCalories = db.dailyCalorieDao().getWeekData()
 
-            for (dailycalory in dailycalories) {
-                println(dailycalory.uid)
-                //println(dailycalory.dailyCalories)
-            }
+            Log.e("dbdebug", "size of weekdata %d".format(dailyCalories.size))
+            Log.e("dbdebug", "amount of daily calories %d".format(dailyCalories[0].dailyCalories))
 
             db.close()
         }
+
 
         //dummy data for the bar graph
 

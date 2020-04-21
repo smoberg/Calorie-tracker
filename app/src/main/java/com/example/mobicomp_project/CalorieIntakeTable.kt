@@ -38,7 +38,7 @@ interface CalorieDao{
 data class DailyCalorieIntake(
     @PrimaryKey(autoGenerate = true) var uid: Int?,
     @ColumnInfo(name = "date") var date: String?,
-    @ColumnInfo(name = "dailyCalories") var dailyCalories: Int?
+    @ColumnInfo(name = "dailyCalories") var dailyCalories: Int
 )
 
 @Dao
@@ -49,8 +49,14 @@ interface DailyCalorieDao{
     @Query("SELECT * FROM dailyCalories")
     fun getDailyCalories(): List<DailyCalorieIntake>
 
+    @Query("SELECT * FROM dailyCalories WHERE date = :date")
+    fun findByDate(date:String?): DailyCalorieIntake?
+
     @Query("SELECT * FROM (SELECT * FROM dailyCalories ORDER BY uid DESC LIMIT 7) ORDER BY uid ASC")
     fun getWeekData(): List<DailyCalorieIntake>
+
+    @Update
+    fun updateData(dailyCalorieIntake: DailyCalorieIntake)
 
     @Query("DELETE FROM dailyCalories WHERE uid = :id")
     fun delete(id:Int)

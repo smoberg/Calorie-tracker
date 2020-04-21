@@ -45,17 +45,11 @@ class IntakeActivity : AppCompatActivity() {
             mAlertDialog.edit_time.setIs24HourView(true)
 
             addDialog.dialog_button_ok.setOnClickListener {
-                // lisää automaattisesti kyseisen päivän valittuun aikaan
+
                 val date = LocalDate.now()
-                val time = LocalTime.of(
-                    mAlertDialog.edit_time.currentHour,
-                    mAlertDialog.edit_time.currentMinute
-                )
+                val time = LocalTime.of(mAlertDialog.edit_time.currentHour, mAlertDialog.edit_time.currentMinute)
                 val datetime = LocalDateTime.of(date, time)
 
-                println(datetime.format(DateTimeFormatter.ofPattern("d/M/y H:mm")))
-
-                // tekee  caloricIntake objektin.
                 val caloricIntake = CaloricIntake(
                     uid = null,
                     timestamp = datetime.format(DateTimeFormatter.ofPattern("d/M/y H:mm")),
@@ -63,16 +57,13 @@ class IntakeActivity : AppCompatActivity() {
                     foodName = mAlertDialog.edit_food.text.toString()
                 )
 
-                Log.e("dbdebug", "db entry tehty")
+                Log.e("dbdebug", "db entry doned")
 
-                // Lisää caloricIntaken databaseen.
+                // Adds new caloric intake to the database.
                 doAsync {
                     val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
-                    Log.e("dbdebug", "db buildattu insertissä")
-
                     db.calorieDao().insert(caloricIntake)
                     db.close()
-
                 }
 
                 mAlertDialog.dismiss()
@@ -97,12 +88,8 @@ class IntakeActivity : AppCompatActivity() {
                 // pitää saada kiinni sen valitun objektin unique id, että se voidaan poistaa databasesta.
                 doAsync {
 
-                    val db = Room.databaseBuilder(
-                        applicationContext,
-                        AppDatabase::class.java,
-                        "calorieIntakes"
-                    ).build()
-                    val id = 1
+                    val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
+                    val id = 0
                     db.calorieDao().delete(id)
                     db.close()
 
@@ -139,7 +126,7 @@ class IntakeActivity : AppCompatActivity() {
                     )
                     val datetime = LocalDateTime.of(date, time)
 
-                    var caloricIntake = db.calorieDao().findById(id)
+                    val caloricIntake = db.calorieDao().findById(id)
                     caloricIntake.calories = Integer.parseInt(mAlertDialog.edit_calories.text.toString())
                     caloricIntake.timestamp = datetime.format(DateTimeFormatter.ofPattern("d/M/y H:mm"))
                     caloricIntake.foodName = mAlertDialog.edit_food.text.toString()
@@ -190,22 +177,16 @@ class IntakeActivity : AppCompatActivity() {
     private fun refreshList() {
 
         doAsync {
-            val db =
-                Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes")
-                    .build()
-            Log.e("dbdebug", "db buildattu intake avatessa")
+            val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
             val caloricIntakes = db.calorieDao().getCaloricIntakes()
-
             db.close()
+
             uiThread {
 
                 if (caloricIntakes.isNotEmpty()) {
                     Log.e("dbdebug", "caloricintakes not empty")
                     Log.e("dbdebug", "size: %d".format(caloricIntakes.size))
-
                     recycler_view.adapter = RecyclerviewAdapter(caloricIntakes)
-
-
                 } else {
                     Log.e("dbdebug", "tyhjä")
                 }
