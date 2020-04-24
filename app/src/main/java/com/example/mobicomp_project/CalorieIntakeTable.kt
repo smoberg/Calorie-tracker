@@ -35,6 +35,7 @@ interface CalorieDao{
 
 @Entity(tableName = "dailyCalories")
 
+
 data class DailyCalorieIntake(
     @PrimaryKey(autoGenerate = true) var uid: Int?,
     @ColumnInfo(name = "date") var date: String?,
