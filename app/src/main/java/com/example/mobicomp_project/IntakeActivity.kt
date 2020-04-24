@@ -186,7 +186,18 @@ class IntakeActivity : AppCompatActivity() {
                 if (caloricIntakes.isNotEmpty()) {
                     Log.e("dbdebug", "caloricintakes not empty")
                     Log.e("dbdebug", "size: %d".format(caloricIntakes.size))
-                    recycler_view.adapter = RecyclerviewAdapter(caloricIntakes)
+                    recycler_view.adapter = RecyclerviewAdapter(caloricIntakes) {
+                        var selectedItem = it
+                        Log.e(
+                            "Activity",
+                            "Clicked on item %d, %s, %d, %s".format(
+                                selectedItem.uid,
+                                selectedItem.timestamp,
+                                selectedItem.calories,
+                                selectedItem.foodName
+                            )
+                        )
+                    }
                 } else {
                     Log.e("dbdebug", "tyhjä")
                 }
