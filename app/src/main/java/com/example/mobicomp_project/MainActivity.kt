@@ -5,7 +5,9 @@ import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.graphics.blue
 import androidx.room.Room
 import com.github.mikephil.charting.charts.BarChart
@@ -17,6 +19,7 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import kotlinx.android.synthetic.*
 import kotlinx.android.synthetic.main.activity_intake.*
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.delete_window.view.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import java.nio.channels.NonReadableChannelException
@@ -37,34 +40,51 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        doAsync {
-            val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
-            val formatter = DateTimeFormatter.ofPattern("d/M/y")
-            val dailyCaloriesCurrent = db.dailyCalorieDao().findByDate(LocalDate.now().format(formatter))
+        //makeDBEntries()
+        doDailyCalorieEntry()
 
-            if (dailyCaloriesCurrent == null){
-                //Makes empty object for the current day if there is not one already in database
-                val dailyCalorieTotal = DailyCalorieIntake(
-                    uid = null,
-                    date = LocalDate.now().format(formatter),
-                    dailyCalories = 0
-                )
-                db.dailyCalorieDao().insert(dailyCalorieTotal)
-                db.close()
+        fab_delete.setOnClickListener{
+
+            val deleteDialog = LayoutInflater.from(this).inflate(R.layout.delete_window, null)
+            val deleteBuilder = AlertDialog.Builder(this)
+                .setView(deleteDialog)
+                .setTitle("Delete whole database")
+
+            val mAlertDialog = deleteBuilder.show()
+
+            deleteDialog.btn_delete_confirm.setOnClickListener {
+
+                doAsync {
+
+                    val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
+                    db.calorieDao().deleteAll()
+                    db.dailyCalorieDao().deleteAll()
+                    db.close()
+
+                }
+                mAlertDialog.dismiss()
+                doDailyCalorieEntry()
+                refreshCalorieText()
+
             }
 
+            deleteDialog.btn_delete_cancel.setOnClickListener {
+                mAlertDialog.dismiss()
+            }
         }
 
 
     }
-    /*
+
+
     private fun makeDBEntries(){
+        //Function for populating the database with dummy data for the bar chart.
         doAsync {
             val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
             val formatter = DateTimeFormatter.ofPattern("d/M/y")
             var i=0
 
-            while (i<5){
+            while (i<6){
                 val dailyCalorieTotal = DailyCalorieIntake(
                     uid = null,
                     date = LocalDate.of(2020,4,16).plusDays(i.toLong()).format(formatter),
@@ -78,14 +98,34 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-     */
 
 
 
     override fun onResume() {
         super.onResume()
-        //makeDBEntries()
         refreshCalorieText()
+    }
+
+    private fun doDailyCalorieEntry(){
+        //Function for making dailyCalorie object of the current day and
+        //committing it to the database. Is ran every time the app is opened.
+
+        doAsync {
+            val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
+            val formatter = DateTimeFormatter.ofPattern("d/M/y")
+            val dailyCaloriesCurrent = db.dailyCalorieDao().findByDate(LocalDate.now().format(formatter))
+
+            if (dailyCaloriesCurrent == null){
+                val dailyCalorieTotal = DailyCalorieIntake(
+                    uid = null,
+                    date = LocalDate.now().format(formatter),
+                    dailyCalories = 0
+                )
+                db.dailyCalorieDao().insert(dailyCalorieTotal)
+                db.close()
+            }
+
+        }
     }
 
     private fun refreshCalorieText(){
@@ -120,6 +160,8 @@ class MainActivity : AppCompatActivity() {
 
             uiThread {
                 calories_text.setText(dailyCaloriesTotal.toString())
+                //calls refreshGraph after the dailyCalorieTotal has been updated in the database
+                //so that Chart gets the newest data.
                 refreshGraph()
             }
         }

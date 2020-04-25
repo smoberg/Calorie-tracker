@@ -62,4 +62,7 @@ interface DailyCalorieDao{
     @Query("DELETE FROM dailyCalories WHERE uid = :id")
     fun delete(id:Int)
 
+    @Query("DELETE FROM dailyCalories")
+    fun deleteAll()
+
 }
