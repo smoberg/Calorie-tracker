@@ -129,7 +129,7 @@ class IntakeActivity : AppCompatActivity() {
                     mAlertDialog.edit_time.setIs24HourView(true)
                 }
             }
-            
+
             editDialog.dialog_button_ok.setOnClickListener {
 
                 // Queryy valitun objektin databasesta, edittaa siihen edittaus ikkunassa asetetut arvot.

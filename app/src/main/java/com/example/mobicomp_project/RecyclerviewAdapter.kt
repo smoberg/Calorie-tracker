@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.annotation.UiThread
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.list_item.view.*
 
@@ -25,11 +24,12 @@ class RecyclerviewAdapter(private val recyclerList: List<CaloricIntake>, private
         holder.foodView.text = currentItem.foodName
         holder.caloriesView.text = currentItem.calories.toString()
         holder.timeView.text = currentItem.timestamp
-
+        holder.itemView.setBackgroundResource(R.drawable.card_color)
 
         holder.itemView.setOnClickListener{
             clickListener(currentItem)
         }
+
     }
 
     override fun getItemCount() = recyclerList.size
