@@ -111,13 +111,25 @@ class IntakeActivity : AppCompatActivity() {
         btn_edit.setOnClickListener {
 
             val editDialog = LayoutInflater.from(this).inflate(R.layout.dialog_window, null)
-            val editBuilder = AlertDialog.Builder(this)
-                .setView(editDialog)
-                .setTitle("Edit Item")
+            val editBuilder = AlertDialog.Builder(this).setView(editDialog).setTitle("Edit Item")
 
             val mAlertDialog = editBuilder.show()
-            mAlertDialog.edit_time.setIs24HourView(true)
 
+            doAsync {
+                val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
+                val eId = selectedUid
+                val caloricIntake = db.calorieDao().findById(eId)
+                db.close()
+                uiThread {
+                    mAlertDialog.edit_food.hint = caloricIntake.foodName
+                    mAlertDialog.edit_calories.hint = caloricIntake.calories.toString()
+                    val dt = LocalDateTime.parse(caloricIntake.timestamp, DateTimeFormatter.ofPattern("d/M/y H:mm"))
+                    mAlertDialog.edit_time.hour = dt.hour
+                    mAlertDialog.edit_time.minute = dt.minute
+                    mAlertDialog.edit_time.setIs24HourView(true)
+                }
+            }
+            
             editDialog.dialog_button_ok.setOnClickListener {
 
                 // Queryy valitun objektin databasesta, edittaa siihen edittaus ikkunassa asetetut arvot.
