@@ -20,13 +20,13 @@ interface CalorieDao{
     fun getCaloricIntakes(): List<CaloricIntake>
 
     @Query("SELECT * FROM calorieIntakes WHERE uid = :id")
-    fun findById(id:Int): CaloricIntake
+    fun findById(id:Int?): CaloricIntake
 
     @Update
     fun updateData(CaloricIntakeObject : CaloricIntake)
 
     @Query("DELETE FROM calorieIntakes WHERE uid = :id")
-    fun delete(id:Int)
+    fun delete(id:Int?)
 
     @Query("DELETE FROM calorieIntakes")
     fun deleteAll()

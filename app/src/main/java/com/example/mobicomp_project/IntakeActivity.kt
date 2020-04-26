@@ -26,6 +26,10 @@ import java.time.Month
 
 class IntakeActivity : AppCompatActivity() {
 
+    companion object {
+        var selectedUid: Int? = 0
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_intake)
@@ -85,12 +89,13 @@ class IntakeActivity : AppCompatActivity() {
             val mAlertDialog = deleteBuilder.show()
 
             deleteDialog.btn_delete_confirm.setOnClickListener {
-                // pitää saada kiinni sen valitun objektin unique id, että se voidaan poistaa databasesta.
+
                 doAsync {
 
+
                     val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
-                    val id = 0
-                    db.calorieDao().delete(id)
+                    val dId = selectedUid
+                    db.calorieDao().delete(dId)
                     db.close()
 
                 }
@@ -120,13 +125,13 @@ class IntakeActivity : AppCompatActivity() {
 
                     val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
 
-                    val id = 1
+                    val eId = selectedUid
                     val date = LocalDate.now()
                     val time = LocalTime.of(mAlertDialog.edit_time.currentHour, mAlertDialog.edit_time.currentMinute
                     )
                     val datetime = LocalDateTime.of(date, time)
 
-                    val caloricIntake = db.calorieDao().findById(id)
+                    val caloricIntake = db.calorieDao().findById(eId)
                     caloricIntake.calories = Integer.parseInt(mAlertDialog.edit_calories.text.toString())
                     caloricIntake.timestamp = datetime.format(DateTimeFormatter.ofPattern("d/M/y H:mm"))
                     caloricIntake.foodName = mAlertDialog.edit_food.text.toString()
@@ -145,27 +150,6 @@ class IntakeActivity : AppCompatActivity() {
             }
         }
 
-/*      val clickText = findViewById<TextView>(R.id.food_item)
-        val clickText = food_item
-        var fabOpened = false
-
-        clickText.setOnClickListener{
-
-            if(!fabOpened){
-
-                fabOpened = true
-                btn_edit.animate().translationY(-resources.getDimension(R.dimen.standard_66))
-                btn_delete.animate().translationY(-resources.getDimension(R.dimen.standard_116))
-
-            } else {
-
-                fabOpened = false
-                btn_edit.animate().translationY(0f)
-                btn_delete.animate().translationY(0f)
-            }
-        }*/
-
-
     }
 
     override fun onResume() {
@@ -176,19 +160,27 @@ class IntakeActivity : AppCompatActivity() {
 
     private fun refreshList() {
 
+        var fabOpened = false
+
         doAsync {
             val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "calorieIntakes").build()
             val caloricIntakes = db.calorieDao().getCaloricIntakes()
             db.close()
+
 
             uiThread {
 
                 if (caloricIntakes.isNotEmpty()) {
                     Log.e("dbdebug", "caloricintakes not empty")
                     Log.e("dbdebug", "size: %d".format(caloricIntakes.size))
+                    Log.d("Caloric intakes listana", caloricIntakes.toString())
 
                     recycler_view.adapter = RecyclerviewAdapter(caloricIntakes) {
+
                         var selectedItem = it
+
+                        selectedUid = selectedItem.uid
+
                         Log.e(
                             "Activity",
                             "Clicked on item %d, %s, %d, %s".format(
@@ -198,12 +190,28 @@ class IntakeActivity : AppCompatActivity() {
                                 selectedItem.foodName
                             )
                         )
+
+                        if(!fabOpened){
+
+                            fabOpened = true
+                            btn_edit.animate().translationY(-resources.getDimension(R.dimen.standard_66))
+                            btn_delete.animate().translationY(-resources.getDimension(R.dimen.standard_116))
+
+
+                        } else {
+
+                            fabOpened = false
+                            btn_edit.animate().translationY(0f)
+                            btn_delete.animate().translationY(0f)
+                        }
+
                     }
+
+
                 } else {
                     Log.e("dbdebug", "tyhjä")
                 }
             }
-
 
         }
 

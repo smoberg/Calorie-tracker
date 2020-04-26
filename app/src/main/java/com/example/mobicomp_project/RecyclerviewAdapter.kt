@@ -26,6 +26,7 @@ class RecyclerviewAdapter(private val recyclerList: List<CaloricIntake>, private
         holder.caloriesView.text = currentItem.calories.toString()
         holder.timeView.text = currentItem.timestamp
 
+
         holder.itemView.setOnClickListener{
             clickListener(currentItem)
         }
